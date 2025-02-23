@@ -25,11 +25,15 @@ img {
 }
 
 input {
-    width: 90%;
+    width: 92%;
     padding: 10px;
     margin: 10px 0;
     border: 1px solid #ccc;
     border-radius: 15px;
+}
+
+#qtddInput, #precoInput {
+    width: 42%;
 }
 
 button {

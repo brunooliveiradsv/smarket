@@ -14,8 +14,10 @@
             <input type="text" id="itemInput"  placeholder="Nome do produto" oninput="filtrarSugestoes()">
             <div id="sugestoes"></div>
         </div>
-        <input type="number" id="qtddInput" placeholder="Quantidade">
-        <input type="text" id="precoInput" placeholder="Preço R$" oninput="formatarMoeda(this)">
+        <div>
+            <input type="number" id="qtddInput" placeholder="Quantidade">
+            <input type="text" id="precoInput" placeholder="Preço R$" oninput="formatarMoeda(this)">
+        </div>
         <button onclick="adicionarItem()" type="submit"><i class="fa-solid fa-cart-plus"></i>&nbsp;&nbsp;Levar</button>
         <ul id="listaCompras"></ul>
         <h3>Total&nbsp;R$<span id="totalPreco">0.00</span></h3>
