@@ -1,0 +1,119 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #01652f;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 325px;
+    height: 580px;
+    margin: 10px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+
+img {
+    width: 200px;
+    height: auto;
+}
+
+input {
+    width: 90%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 15px;
+}
+
+button {
+    background-color: #489e44;
+    width: 40%;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    cursor: pointer;
+    font-size: 20px;
+    color: white;
+}
+
+button:active {
+    background-color: #8dc73f;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    width: 105%;
+    height: 200px;
+    overflow-y: auto;
+}
+
+li {
+    background-color: #91da70;
+    margin: 5px 0;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 5px;
+    color: #205e0d;
+}
+
+li button {
+    background-color: #499659;
+    color: white;
+    border: none;
+    padding: 0px 5px;
+    border-radius: 15px;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+}
+
+li button:hover {
+    background-color: #d22f2f;
+}
+
+h3 {
+    margin: 0;
+    padding: 0;
+    text-align: right;
+    width: 90%;
+}
+
+.sugestoes-container {
+    position: relative; /* Garante que a lista fique dentro da div corretamente */
+    width: 100%;
+}
+
+#sugestoes {
+    position: absolute;
+    top: 100%; /* Faz a lista aparecer logo abaixo do input */
+    left: 0;
+    width: calc(100% - 2px); /* Mantém a mesma largura do input */
+    background: white;
+    border: 1px solid #ccc;
+    max-height: 150px;
+    overflow-y: auto;
+    display: none;
+    z-index: 1000; /* Mantém a lista acima de outros elementos */
+    border-radius: 4px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#sugestoes div {
+    padding: 5px;
+    cursor: pointer;
+
+}
+
+#sugestoes div:hover {
+    background-color: #e0e0e0;
+}
