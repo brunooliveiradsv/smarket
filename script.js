@@ -1,14 +1,38 @@
 function handleCredentialResponse(response) {
-    // Aqui você pode validar o token de login do Google
     if (response.credential) {
+        const user = jwt_decode(response.credential); // Decodificando o JWT do Google
+        const userId = user.sub; // ID único do usuário
+
+        // Armazenar o ID do usuário no localStorage
+        localStorage.setItem('userId', userId);
+        
         // Oculta a tela de login
         document.getElementById("login").style.display = "none";
         
         // Exibe a tela principal (home)
         document.getElementById("home").style.display = "block";
+
+        // Carregar a lista de compras do usuário logado
+        carregarListaCompras(userId);
     } else {
         alert("Falha no login. Tente novamente.");
     }
+}
+
+function carregarListaCompras(userId) {
+    const listaSalva = JSON.parse(localStorage.getItem(`listaCompras_${userId}`)) || [];
+
+    // Preencher a lista de compras na tela
+    listaSalva.forEach(item => {
+        let lista = document.getElementById("listaCompras");
+        let li = document.createElement("li");
+        li.innerHTML = `${item.nome} - ${item.quantidade}x R$${item.preco.toFixed(2).replace(".", ",")} = R$${item.precoTotal.toFixed(2).replace(".", ",")}
+            <button class='remove' onclick='removerItem(this, ${item.precoTotal})'><i class="fa-solid fa-trash"></i></button>`;
+        lista.appendChild(li);
+    });
+
+    // Atualizar o total
+    atualizarTotal(listaSalva.reduce((acc, item) => acc + item.precoTotal, 0));
 }
 
 window.onload = function () {
@@ -100,11 +124,15 @@ function atualizarTotal(valor) {
 }
 
 function formatarMoeda(input) {
-    let valor = input.value.replace(/[^0-9,]/g, "").replace(/,(?=.*?,)/g, "");
+    let valor = input.value.replace(/[^\d,]/g, '').replace(',', '.');
     if (valor) {
-        input.value = `R$${valor}`;
+        let valorFormatado = parseFloat(valor).toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL',
+        });
+        input.value = valorFormatado;
     } else {
-        input.value = "";
+        input.value = '';
     }
 }
 
@@ -122,26 +150,38 @@ function adicionarItem() {
     let qtddInput = document.getElementById("qtddInput");
     let precoInput = document.getElementById("precoInput");
     let lista = document.getElementById("listaCompras");
-    let totalPreco = document.getElementById("totalPreco");
-    
+    let userId = localStorage.getItem('userId'); // Pega o ID do usuário logado
+
     let itemNome = itemInput.value.trim();
     let quantidade = parseInt(qtddInput.value);
     let preco = parseFloat(precoInput.value.replace(/[^0-9,]/g, "").replace(",", "."));
-    
+
     if (!itemNome || isNaN(quantidade) || isNaN(preco) || quantidade <= 0 || preco <= 0) {
         alert("Por favor, preencha todos os campos corretamente.");
         return;
     }
-    
+
     let precoTotalItem = quantidade * preco;
-    
+
+    // Adicionar o item à lista
     let li = document.createElement("li");
     li.innerHTML = `${itemNome} - ${quantidade}x R$${preco.toFixed(2).replace(".", ",")} = R$${precoTotalItem.toFixed(2).replace(".", ",")} 
         <button class='remove' onclick='removerItem(this, ${precoTotalItem})'><i class="fa-solid fa-trash"></i></button>`;
     lista.appendChild(li);
-    
+
+    // Atualizar o total
     atualizarTotal(precoTotalItem);
-    
+
+    // Salvar o item na lista de compras do usuário
+    let listaCompras = JSON.parse(localStorage.getItem(`listaCompras_${userId}`)) || [];
+    listaCompras.push({
+        nome: itemNome,
+        quantidade: quantidade,
+        preco: preco,
+        precoTotal: precoTotalItem
+    });
+    localStorage.setItem(`listaCompras_${userId}`, JSON.stringify(listaCompras));
+
     itemInput.value = "";
     qtddInput.value = "";
     precoInput.value = "";
@@ -162,20 +202,24 @@ function atualizarTotal(valor) {
 
 // Função para filtrar sugestões de produtos
 function filtrarSugestoes() {
+function filtrarSugestoes() {
     let input = document.getElementById("itemInput");
     let listaSugestoes = document.getElementById("sugestoes");
     let filtro = input.value.toLowerCase().trim();
-    
+
     listaSugestoes.innerHTML = "";
     if (filtro === "") {
-        listaSugestoes.style.display = "none"; // Oculta se o filtro estiver vazio
+        listaSugestoes.style.display = "none";
         return;
     }
 
-    let sugestoesFiltradas = produtosPredefinidos.filter(produto => produto.toLowerCase().startsWith(filtro));
+    let sugestoesFiltradas = produtosPredefinidos.filter(produto =>
+        produto.toLowerCase().startsWith(filtro) &&
+        !itemAdicionado(produto) // Filtra produtos já adicionados
+    );
 
     if (sugestoesFiltradas.length === 0) {
-        listaSugestoes.style.display = "none"; // Oculta se não houver sugestões
+        listaSugestoes.style.display = "none";
         return;
     }
 
@@ -185,18 +229,35 @@ function filtrarSugestoes() {
         item.onclick = () => {
             input.value = produto;
             listaSugestoes.innerHTML = "";
-            listaSugestoes.style.display = "none"; // Oculta sugestões após selecionar
+            listaSugestoes.style.display = "none";
         };
         listaSugestoes.appendChild(item);
     });
 
-    listaSugestoes.style.display = "block"; // Exibe sugestões
+    listaSugestoes.style.display = "block";
+}
+
+function itemAdicionado(produto) {
+    let lista = document.getElementById("listaCompras");
+    for (let li of lista.children) {
+        if (li.innerText.includes(produto)) {
+            return true; // Produto já adicionado
+        }
+    }
+    return false;
 }
 
 function excluirTodos() {
     let lista = document.getElementById("listaCompras");
-    lista.innerHTML = ""; // Limpa todo o conteúdo da lista
+    lista.innerHTML = "";
+
+    // Reseta os campos de entrada
+    document.getElementById("itemInput").value = "";
+    document.getElementById("qtddInput").value = "";
+    document.getElementById("precoInput").value = "";
 
     // Reseta o total para 0
     atualizarTotal(-parseFloat(document.getElementById("totalPreco").innerText.replace(",", ".")));
 }
+
+
