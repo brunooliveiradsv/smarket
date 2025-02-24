@@ -36,14 +36,19 @@ input {
     width: 42%;
 }
 
+.container-organization {
+    display: flex;
+    flex-direction: row;
+}
+
 button {
     background-color: #489e44;
-    width: 40%;
+    width:155px;
     padding: 15px;
-    border: 1px solid #ccc;
-    border-radius: 15px;
+    border: none;
+    border-radius: 20px;
     cursor: pointer;
-    font-size: 20px;
+    font-size: 16px;
     color: white;
 }
 
@@ -85,11 +90,16 @@ li button:hover {
     background-color: #d22f2f;
 }
 
-h3 {
-    margin: 0;
-    padding: 0;
-    text-align: right;
-    width: 90%;
+footer {
+    display: flex;
+    justify-content: space-around;
+    bottom: 0;
+    width: 100%;
+    background-color: #499659;
+    border-radius: 20px;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
 }
 
 .sugestoes-container {

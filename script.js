@@ -1,3 +1,38 @@
+function handleCredentialResponse(response) {
+    // Aqui você pode validar o token de login do Google
+    if (response.credential) {
+        // Oculta a tela de login
+        document.getElementById("login").style.display = "none";
+        
+        // Exibe a tela principal (home)
+        document.getElementById("home").style.display = "block";
+    } else {
+        alert("Falha no login. Tente novamente.");
+    }
+}
+
+window.onload = function () {
+    google.accounts.id.initialize({
+        client_id: "869208647497-6iqbee4t38ppfs4nu144fachalo630cl.apps.googleusercontent.com",
+        callback: handleCredentialResponse
+    });
+
+    google.accounts.id.renderButton(
+        document.getElementById("buttonDiv"),
+        { theme: "filled", shape: "pill", size: "large" }  // Atributos de personalização
+    );
+    google.accounts.id.prompt(); // Também exibe o diálogo do One Tap
+};
+
+function deslogarApp() {
+    // Desconectar o usuário do Google
+    google.accounts.id.disableAutoSelect();
+
+    // Exibir a tela de login
+    document.getElementById("home").style.display = "none";
+    document.getElementById("login").style.display = "block";
+}
+
 const produtosPredefinidos = [
     // Alimentos básicos
     "Arroz", "Feijão", "Macarrão", "Óleo", "Açúcar", "Sal", "Leite", "Pão", "Café", "Farinha", "Carne", "Frango", "Peixe",
@@ -26,7 +61,7 @@ const produtosPredefinidos = [
     // Higiene pessoal
     "Sabonete Dove", "Shampoo Pantene", "Condicionador Seda", "Creme hidratante Nivea", "Desodorante Rexona", "Pasta de dente Colgate",
     "Escova de dente Oral-B", "Fio dental Johnson & Johnson", "Enxaguante bucal Listerine", "Aparelho de barbear Gillette",
-    "Creme de barbear Bozzano", "Absorvente Always", "Fraldas descartáveis Pampers", "Papel higiênico Neve", "Cotonete Johnson’s",
+    "Creme de barbear Bozzano", "Absorvente Always", "Fraldas descartáveis Pampers", "Papel higiênico Neve", "Cotonete",
     "Perfume Natura", "Lenço umedecido Huggies",
 
     // Limpeza
@@ -53,37 +88,6 @@ const produtosPredefinidos = [
     "Bombril", "Vela", "Isqueiro Bic", "Carvão", "Esquenta marmita", "Papel alumínio Wyda", "Papel filme Wyda", "Filtro de café Melitta"
 ];
 
-
-function adicionarItem() {
-    let itemInput = document.getElementById("itemInput");
-    let qtddInput = document.getElementById("qtddInput");
-    let precoInput = document.getElementById("precoInput");
-    let lista = document.getElementById("listaCompras");
-    let totalPreco = document.getElementById("totalPreco");
-    
-    let itemNome = itemInput.value.trim();
-    let quantidade = parseInt(qtddInput.value);
-    let preco = parseFloat(precoInput.value.replace(/[^0-9,]/g, "").replace(",", "."));
-    
-    if (!itemNome || isNaN(quantidade) || isNaN(preco) || quantidade <= 0 || preco <= 0) {
-        alert("Por favor, preencha todos os campos corretamente.");
-        return;
-    }
-    
-    let precoTotalItem = quantidade * preco;
-    
-    let li = document.createElement("li");
-    li.innerHTML = `${itemNome} - ${quantidade}x R$${preco.toFixed(2).replace(".", ",")} = R$${precoTotalItem.toFixed(2).replace(".", ",")} 
-        <button class='remove' onclick='removerItem(this, ${precoTotalItem})'><i class="fa-solid fa-trash"></i></button>`;
-    lista.appendChild(li);
-    
-    atualizarTotal(precoTotalItem);
-    
-    itemInput.value = "";
-    qtddInput.value = "";
-    precoInput.value = "";
-}
-
 function removerItem(botao, precoTotalItem) {
     botao.parentElement.remove();
     atualizarTotal(-precoTotalItem);
@@ -102,38 +106,6 @@ function formatarMoeda(input) {
     } else {
         input.value = "";
     }
-}
-
-function filtrarSugestoes() {
-    let input = document.getElementById("itemInput");
-    let listaSugestoes = document.getElementById("sugestoes");
-    let filtro = input.value.toLowerCase().trim();
-    
-    listaSugestoes.innerHTML = "";
-    if (filtro === "") {
-        listaSugestoes.style.display = "none";
-        return;
-    }
-
-    let sugestoesFiltradas = produtosPredefinidos.filter(produto => produto.toLowerCase().startsWith(filtro));
-
-    if (sugestoesFiltradas.length === 0) {
-        listaSugestoes.style.display = "none";
-        return;
-    }
-
-    sugestoesFiltradas.forEach(produto => {
-        let item = document.createElement("div");
-        item.innerText = produto;
-        item.onclick = () => {
-            input.value = produto;
-            listaSugestoes.innerHTML = "";
-            listaSugestoes.style.display = "none";
-        };
-        listaSugestoes.appendChild(item);
-    });
-
-    listaSugestoes.style.display = "block";
 }
 
 // Evento de pressionamento de tecla para adicionar o item ao pressionar "Enter"
@@ -188,16 +160,6 @@ function atualizarTotal(valor) {
     totalPreco.innerText = (totalAtual + valor).toFixed(2).replace(".", ",");
 }
 
-// Função para formatar o valor como moeda
-function formatarMoeda(input) {
-    let valor = input.value.replace(/[^0-9,]/g, "").replace(/,(?=.*?,)/g, "");
-    if (valor) {
-        input.value = `R$${valor}`;
-    } else {
-        input.value = "";
-    }
-}
-
 // Função para filtrar sugestões de produtos
 function filtrarSugestoes() {
     let input = document.getElementById("itemInput");
@@ -231,3 +193,10 @@ function filtrarSugestoes() {
     listaSugestoes.style.display = "block"; // Exibe sugestões
 }
 
+function excluirTodos() {
+    let lista = document.getElementById("listaCompras");
+    lista.innerHTML = ""; // Limpa todo o conteúdo da lista
+
+    // Reseta o total para 0
+    atualizarTotal(-parseFloat(document.getElementById("totalPreco").innerText.replace(",", ".")));
+}
